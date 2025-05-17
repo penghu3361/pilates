@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>健身普拉提 - 训练计划</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            overscroll-behavior-y: contain;
+        }
+        .ios-status-bar-placeholder {
+            height: 44px; 
+            background-color: #f8f8f8; /* Match nav bar color */
+            /* border-bottom: 1px solid #e0e0e0; */ /* Removed border, nav-bar has it */
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 50; /* Higher than nav-bar */
+        }
+        .ios-nav-bar {
+            background-color: #f8f8f8;
+            border-bottom: 1px solid #e0e0e0;
+            position: fixed;
+            top: 44px; /* Position below status bar placeholder */
+            left: 0;
+            right: 0;
+            z-index: 40; 
+            height: 44px; /* Explicit height for nav bar */
+            display: flex; /* For vertical centering of title and buttons */
+            align-items: center; /* For vertical centering */
+            justify-content: space-between; /* To space out back button, title, and add button */
+            padding-left: 16px; /* iOS typical padding */
+            padding-right: 16px; /* iOS typical padding */
+        }
+        .ios-tab-bar {
+            background-color: #f8f8f8;
+            border-top: 1px solid #e0e0e0;
+        }
+        .ios-tab-bar-item.active i,
+        .ios-tab-bar-item.active span {
+            color: #007aff; 
+        }
+        .plan-card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        .calendar-view {
+            /* Basic styling for a calendar placeholder */
+            background-color: white;
+            border-radius: 12px;
+            padding: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .day-cell {
+            width: calc(100% / 7);
+            height: 40px; /* Explicit height for day cell */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative; /* Keep for potential absolute positioned elements inside if needed elsewhere, though day-cell-content is now flexed */
+        }
+        .day-cell-content {
+            /* Removed absolute positioning */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            width: 32px; /* Fixed width for the circle */
+            height: 32px; /* Fixed height for the circle */
+            font-size: 0.875rem; /* Adjust font size as needed */
+        }
+        .day-cell-content.today {
+            background-color: #007aff;
+            color: white;
+        }
+        .day-cell-content.has-event {
+            border: 2px solid #007aff;
+        }
+        .day-cell-content.has-event.today {
+             border: 2px solid white; /* Or a contrasting color */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex flex-col h-screen">
+
+    <div class="ios-status-bar-placeholder fixed top-0 left-0 right-0 z-50"></div>
+
+    <header class="ios-nav-bar">
+        <button onclick="window.history.back()" class="text-blue-500 text-sm">
+            <i class="fas fa-chevron-left"></i> 返回
+        </button>
+        <h1 class="text-lg font-semibold text-gray-800">训练计划</h1>
+        <button class="text-blue-500">
+            <i class="fas fa-plus text-xl"></i> 添加
+        </button>
+    </header>
+
+    <main class="flex-grow pt-[88px] pb-[60px] overflow-y-auto"> <!-- pt is sum of status bar (44px) and nav bar (44px) -->
+
+        <!-- Calendar View -->
+        <div class="p-4">
+            <div class="calendar-view mb-6">
+                <div class="flex justify-between items-center mb-3">
+                    <button class="text-gray-600 hover:text-blue-500"><i class="fas fa-chevron-left"></i></button>
+                    <h3 class="font-semibold text-lg text-gray-800">2024年 7月</h3>
+                    <button class="text-gray-600 hover:text-blue-500"><i class="fas fa-chevron-right"></i></button>
+                </div>
+                <div class="grid grid-cols-7 text-center text-xs text-gray-500 mb-1">
+                    <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
+                </div>
+                <div class="grid grid-cols-7 gap-1 text-sm">
+                    <!-- Example Days (dynamically generated in a real app) -->
+                    <div class="day-cell"><div class="day-cell-content text-gray-400">30</div></div>
+                    <div class="day-cell"><div class="day-cell-content">1</div></div>
+                    <div class="day-cell"><div class="day-cell-content has-event">2</div></div>
+                    <div class="day-cell"><div class="day-cell-content">3</div></div>
+                    <div class="day-cell"><div class="day-cell-content today has-event">4</div></div>
+                    <div class="day-cell"><div class="day-cell-content">5</div></div>
+                    <div class="day-cell"><div class="day-cell-content">6</div></div>
+                    <div class="day-cell"><div class="day-cell-content">7</div></div>
+                    <div class="day-cell"><div class="day-cell-content has-event">8</div></div>
+                    <!-- Calendar days will be dynamically generated here by JavaScript -->
+                </div>
+            </div>
+
+            <h2 class="text-lg font-semibold text-gray-700 mb-3" id="plan-date-title">今日计划</h2>
+            <div class="space-y-3">
+                <!-- Plan Item 1 -->
+                <div class="plan-card p-4 flex items-center justify-between">
+                    <div>
+                        <h3 class="font-semibold text-gray-800">晨间核心唤醒</h3>
+                        <p class="text-xs text-gray-500">15分钟 - 普拉提垫上</p>
+                    </div>
+                    <button class="text-sm bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-full">已完成</button>
+                </div>
+
+                <!-- Plan Item 2 -->
+                <div class="plan-card p-4 flex items-center justify-between">
+                    <div>
+                        <h3 class="font-semibold text-gray-800">午间拉伸放松</h3>
+                        <p class="text-xs text-gray-500">10分钟 - 办公室友好</p>
+                    </div>
+                    <button class="text-sm bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-full">开始</button>
+                </div>
+                
+                <!-- Empty State for no plans -->
+                <!-- <div class="text-center text-gray-500 py-8">
+                    <i class="fas fa-calendar-times text-3xl mb-2"></i>
+                    <p>今天没有训练计划哦！</p>
+                    <button class="mt-3 text-sm bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">创建新计划</button>
+                </div> -->
+            </div>
+        </div>
+    </main>
+
+    <nav class="ios-tab-bar fixed bottom-0 left-0 right-0 h-[60px] flex justify-around items-center z-50">
+        <a href="index.html" class="ios-tab-bar-item flex flex-col items-center text-gray-600">
+            <i class="fas fa-home text-xl"></i>
+            <span class="text-xs mt-0.5">主页</span>
+        </a>
+        <a href="courses.html" class="ios-tab-bar-item flex flex-col items-center text-gray-600">
+            <i class="fas fa-video text-xl"></i>
+            <span class="text-xs mt-0.5">课程</span>
+        </a>
+        <a href="plans.html" class="ios-tab-bar-item flex flex-col items-center text-gray-600 active">
+            <i class="fas fa-calendar-alt text-xl"></i>
+            <span class="text-xs mt-0.5">计划</span>
+        </a>
+        <a href="profile.html" class="ios-tab-bar-item flex flex-col items-center text-gray-600">
+            <i class="fas fa-user text-xl"></i>
+            <span class="text-xs mt-0.5">我的</span>
+        </a>
+    </nav>
+
+    <script>
+        document.querySelectorAll('.ios-tab-bar-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                document.querySelectorAll('.ios-tab-bar-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        let currentYear = new Date().getFullYear();
+        let currentMonth = new Date().getMonth(); // 0-indexed (0 for January, 11 for December)
+
+        function renderCalendar(year, month) {
+            const calendarDaysContainer = document.querySelector('.calendar-view .grid.grid-cols-7.gap-1');
+            const monthYearDisplay = document.querySelector('.calendar-view h3');
+            const planDateTitle = document.getElementById('plan-date-title');
+
+            calendarDaysContainer.innerHTML = ''; // Clear previous days
+
+            monthYearDisplay.textContent = `${year}年 ${month + 1}月`;
+            
+            const today = new Date();
+            const todayDateString = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
+
+            // Update "今日计划" title
+            const displayDate = new Date(year, month, new Date().getDate()); // Default to current day if month/year matches
+            // If viewing a different month/year, perhaps show the 1st of that month or a general title
+            if (year === today.getFullYear() && month === today.getMonth()) {
+                planDateTitle.textContent = `今日计划 (${month + 1}月${today.getDate()}日)`;
+            }
+            // else {
+            //     planDateTitle.textContent = `计划 (${month + 1}月1日)`; // Or some other logic
+            // }
+
+            const firstDayOfMonth = new Date(year, month, 1);
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const startingDayOfWeek = firstDayOfMonth.getDay(); // 0 (Sun) - 6 (Sat)
+
+            const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+            let dayCells = [];
+
+            // Add days from the previous month
+            for (let i = 0; i < startingDayOfWeek; i++) {
+                const day = daysInPrevMonth - startingDayOfWeek + 1 + i;
+                dayCells.push(`<div class="day-cell"><div class="day-cell-content text-gray-400">${day}</div></div>`);
+            }
+
+            // Add days of the current month
+            for (let day = 1; day <= daysInMonth; day++) {
+                let classes = 'day-cell-content';
+                const currentDateString = `${year}-${month}-${day}`;
+                if (year === today.getFullYear() && month === today.getMonth() && day === today.getDate()) {
+                    classes += ' today';
+                }
+                // Example: Mark day 8 and 15 as having events (replace with actual event data)
+                if ((month === 6 && day === 8) || (month === 6 && day === 15) || (month === today.getMonth() && day === 4 && year === today.getFullYear())) { // July 8th, July 15th, and current July 4th
+                    classes += ' has-event';
+                }
+                dayCells.push(`<div class="day-cell"><div class="${classes}">${day}</div></div>`);
+            }
+
+            // Add days from the next month to fill up 6 rows (42 cells)
+            const totalCells = 42; // 6 rows * 7 columns
+            let nextMonthDay = 1;
+            while (dayCells.length < totalCells) {
+                dayCells.push(`<div class="day-cell"><div class="day-cell-content text-gray-400">${nextMonthDay++}</div></div>`);
+            }
+            
+            calendarDaysContainer.innerHTML = dayCells.join('');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCalendar(currentYear, currentMonth);
+
+            const prevMonthButton = document.querySelector('.calendar-view .fa-chevron-left').parentElement;
+            const nextMonthButton = document.querySelector('.calendar-view .fa-chevron-right').parentElement;
+
+            prevMonthButton.addEventListener('click', () => {
+                currentMonth--;
+                if (currentMonth < 0) {
+                    currentMonth = 11;
+                    currentYear--;
+                }
+                renderCalendar(currentYear, currentMonth);
+            });
+
+            nextMonthButton.addEventListener('click', () => {
+                currentMonth++;
+                if (currentMonth > 11) {
+                    currentMonth = 0;
+                    currentYear++;
+                }
+                renderCalendar(currentYear, currentMonth);
+            });
+        });
+    </script>
+</body>
+</html>
